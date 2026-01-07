@@ -1,10 +1,23 @@
 <?php
 
+use App\Http\Controllers\Admin\UploadedPdfAdminController;
+use App\Http\Controllers\Api\AddToCartController;
+use App\Http\Controllers\Api\AdminPdfController;
+use App\Http\Controllers\Api\ApiCourseController;
+use App\Http\Controllers\Api\ApiSectionController;
+use App\Http\Controllers\Api\ApiSessionController;
+use App\Http\Controllers\Api\ApiSubjectController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CertificateController;
 use App\Http\Controllers\Api\CourseApiController;
+use App\Http\Controllers\Api\CourseFullDataController;
 use App\Http\Controllers\Api\EnrollmentApiController;
+use App\Http\Controllers\Api\ProgressController;
+use App\Http\Controllers\SessionController;
+use App\Http\Controllers\Api\UploadedPdfController;
+
 
 Route::post('/register', [AuthController::class, 'register']);
 
@@ -13,12 +26,67 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 
-Route::get('/courses', [CourseApiController::class, 'index']);
-Route::get('/courses/{id}', [CourseApiController::class, 'show']);
-Route::post('/courses', [CourseApiController::class, 'store']);
-Route::post('/courses/{id}', [CourseApiController::class, 'update']);
-Route::delete('/courses/{id}', [CourseApiController::class, 'destroy']);  
+Route::get('/courses', [ApiCourseController::class, 'getAllCourses']);
+Route::get('/courses/{id}', [ApiCourseController::class, 'getCourseDetails']);
+Route::get('/subjects/{course_id}', [ApiSubjectController::class, 'getSubjects']);
+Route::get('/sections/{subject_id}', [ApiSectionController::class, 'apiSections']);
+Route::get('/sessions/{section_id}', [ApiSessionController::class, 'apiSessions']);
+Route::get('/sessions/{section_id}/{user_id}',[ApiSessionController::class, 'getBySection']);
+  
 
 
-Route::get('/student/{id}/enrolments', [EnrollmentApiController::class, 'getStudentEnrolments']);
-Route::post('/enrol', [EnrollmentApiController::class, 'store']);
+Route::post('/add-to-cart', [AddToCartController::class, 'addToCart']);
+Route::get('/cart-list', [AddToCartController::class, 'cartList']);
+Route::delete('/cart-remove/{id}', [AddToCartController::class, 'removeCartItem']);
+
+
+Route::get('/my-enrolments/{id}', [EnrollmentApiController::class, 'myEnrolments']);
+Route::post('/cart-confirm', [AddToCartController::class, 'confirmCart']);
+
+
+
+
+// Course full data
+Route::get('/course-full-data/{course_id}', [CourseFullDataController::class, 'getFullData']);
+
+// Progress update
+Route::post('/update-progress', [ProgressController::class, 'updateProgress']);
+
+
+
+// Certificate APIs
+Route::post('/generate-certificate', [CertificateController::class, 'generateCertificate']);
+Route::get('/certificates/{student_id}', [CertificateController::class, 'list']);
+
+
+
+
+// ================= STUDENT =================
+
+// Course progress percentage API
+Route::get('/course-progress/{student_id}/{course_id}', [ProgressController::class, 'courseProgress']);
+
+Route::post('/session/task-complete', [ProgressController::class, 'taskComplete']);
+
+    
+Route::post('/session/video-complete', [ProgressController::class, 'videoComplete']);
+Route::post('/session/pdf-complete', [ProgressController::class, 'pdfComplete']);
+
+Route::post('/upload-pdf', [UploadedPdfController::class, 'upload']);
+Route::get('/uploaded-pdf/{session_id}', [UploadedPdfController::class, 'getBySession']);
+
+
+// ================= ADMIN =================
+Route::prefix('admin')->group(function () {
+    Route::get('/pending-pdfs', [AdminPdfController::class, 'index']);
+    Route::get('/pdf/{id}', [AdminPdfController::class, 'show']);
+    Route::post('/approve-pdf/{id}', [AdminPdfController::class, 'approve']);
+});
+
+
+Route::get('/getBySection/{section_id}/{user_id}', [ApiSessionController::class, 'getBySection']);
+
+
+
+
+

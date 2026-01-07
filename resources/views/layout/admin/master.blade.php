@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <title>DASHMIN - Bootstrap Admin Template</title>
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    
+
     <!-- Favicon -->
     <link href="{{ asset('assets/img/favicon.ico') }}" rel="icon">
 
@@ -57,7 +57,7 @@
 
 
                 <div class="navbar-nav w-100">
-                    <a href="/home" class="nav-item nav-link active"><i
+                    <a href="/dashboard" class="nav-item nav-link active"><i
                             class="fa fa-tachometer-alt me-2"></i>Dashboard</a>
                     <a href="{{ route('students.index') }}" class="nav-item nav-link"><i
                             class="fa fa-th me-2"></i>Student</a>
@@ -66,20 +66,23 @@
 
                     <a href="{{ route('courselist') }}" class="nav-item nav-link">
                         <i class="fa fa-layer-group me-2"></i>Course
-                    </a> 
+                    </a>
 
-                    
+
                     <a href="{{ route('enrolments.index') }}" class="nav-item nav-link"><i
-                        class="fa fa-table me-2"></i>enrolment</a>
-                        
-                        {{-- <a href="{{ route("enrolments.index") }}" class="nav-item nav-link">
+                            class="fa fa-table me-2"></i>enrolment</a>
+
+                    <a href="{{ route('certificates.page') }}" class="nav-item nav-link"><i
+                            class="fa fa-table me-2"></i>Certificates</a>
+
+                    {{-- <a href="{{ route("enrolments.index") }}" class="nav-item nav-link">
                             <i class="fa fa-layer-group me-2"></i>enrolment
                         </a>  --}}
-                            
+
                 </div>
             </nav>
         </div>
-        <!-- Sidebar End -->    
+        <!-- Sidebar End -->
 
         <!-- Content Start -->
         <div class="content">
@@ -96,31 +99,12 @@
 
                 <div class="navbar-nav align-items-center ms-auto">
 
-                    <!-- Messages Dropdown -->
 
 
-                    {{-- <div class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="fa fa-envelope me-lg-2"></i>
-                            <span class="d-none d-lg-inline-flex">Messages</span>
-                        </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0">
-                            <a href="#" class="dropdown-item">
-                                <div class="d-flex align-items-center">
-                                    <img class="rounded-circle" src="{{ asset('assets/img/user.jpg') }}" alt="User"
-                                        style="width: 40px; height: 40px;">
-                                    <div class="ms-2">
-                                        <h6 class="fw-normal mb-0">John sent you a message</h6>
-                                        <small>15 minutes ago</small>
-                                    </div>
-                                </div>
-                            </a>
-                            <hr class="dropdown-divider">
-                            <a href="#" class="dropdown-item text-center">See all messages</a>
-                        </div>
-                    </div> --}}
+                    <a href="{{ route('admin.pending.pdfs') }}" class="nav-item nav-link">
+                        <i class="fa fa-table me-2"></i>PDF View
+                    </a>
 
-                    <!-- Notifications Dropdown -->
 
 
                     <div class="nav-item dropdown">
@@ -162,7 +146,7 @@
 
                             <hr class="dropdown-divider">
                             <a class="dropdown-item" href="{{ route('profile') }}">My Profile</a>
-                        
+
                             <form action="{{ route('logout') }}" method="post">
                                 @csrf
                                 <button type="submit" class="dropdown-item">Logout</button>

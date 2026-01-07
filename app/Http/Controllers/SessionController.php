@@ -2,128 +2,146 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\section;
-use App\Models\session;
+use App\Models\Section;
+use App\Models\Session;
 use Illuminate\Http\Request;
 
 class SessionController extends Controller
 {
-    /**
-     * List all sessions for a section
-     */
+    // ================= LIST =================
     public function index($section_id)
     {
-
-        $section = section::with('sessions')->findOrFail($section_id);
+        $section = Section::with('sessions')->findOrFail($section_id);
         return view('session.index', compact('section'));
     }
 
-    /**
-     * Show create session form
-     */
+    // ================= CREATE =================
     public function create($section_id = null)
     {
-        $sections = section::all();
+        $sections = Section::all();
         return view('session.create', compact('sections', 'section_id'));
     }
 
-    /**
-     * Store a new session
-     */
+    // ================= STORE =================
     public function store(Request $request, $section_id)
     {
         $request->validate([
             'section_id' => 'required|exists:section,section_id',
             'titel' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'video' => 'nullable|string|url',
-            'pdf' => 'nullable|file',
-            'task' => 'nullable|file',
-            'exam' => 'nullable|file',
+            'type'  => 'required|in:video,pdf,task,exam',
+
+            'video' => 'nullable|url',
+            'pdf'   => 'nullable|file|mimes:pdf',
+            'task'  => 'nullable|file',
+            'exam'  => 'nullable|file',
         ]);
 
-        // Prepare default data
+        // 🔑 त्या section मधील आधी किती sessions आहेत ते मोज
+        $sessionCount = Session::where('section_id', $section_id)->count();
+
         $data = [
             'section_id' => $section_id,
             'titel' => $request->titel,
-            'type' => $request->type,
-            'video' => $request->type === 'video' ? ($request->video ?? '') : '',
-            'pdf' => '',
-            'task' => '',
-            'exam' => '',
+            'type'  => $request->type,
+            'video' => '',
+            'pdf'   => '',
+            'task'  => '',
+            'exam'  => '',
+
+            // 🔑 FIRST SESSION = unlocked (1), बाकी = 0
+            'unlocked' => $sessionCount === 0 ? 1 : 0,
         ];
 
-        // Handle uploaded files
-        $data['pdf'] = $request->hasFile('pdf') ? $request->file('pdf')->store('pdf', 'public') : '';
-        $data['task'] = $request->hasFile('task') ? $request->file('task')->store('task', 'public') : '';
-        $data['exam'] = $request->hasFile('exam') ? $request->file('exam')->store('exam', 'public') : '';
+        if ($request->type === 'video') {
+            $data['video'] = $request->video ?? '';
+        }
 
-        session::create($data);
+        if ($request->type === 'pdf' && $request->hasFile('pdf')) {
+            $data['pdf'] = $request->file('pdf')->store('pdf', 'public');
+        }
 
-        return redirect()->route('sessions.index', ['section_id' => $section_id])
-            ->with('success', 'Session created successfully.');
+        if ($request->type === 'task' && $request->hasFile('task')) {
+            $data['task'] = $request->file('task')->store('task', 'public');
+        }
+
+        if ($request->type === 'exam' && $request->hasFile('exam')) {
+            $data['exam'] = $request->file('exam')->store('exam', 'public');
+        }
+
+        Session::create($data);
+
+        return redirect()
+            ->route('sessions.index', ['section_id' => $section_id])
+            ->with('success', 'Session created successfully!');
     }
 
-    /**
-     * Show edit session form
-     */
+    // ================= EDIT =================
     public function edit($section_id, $id)
     {
-        $section = section::findOrFail($section_id);
-        $session = session::findOrFail($id);
+        $section = Section::findOrFail($section_id);
+        $session = Session::findOrFail($id);
 
         return view('session.edit', compact('section', 'session'));
     }
 
-    /**
-     * Update session
-     */
+    // ================= UPDATE =================
     public function update(Request $request, $section_id, $id)
     {
-        $session = session::findOrFail($id);
+        $session = Session::findOrFail($id);
 
         $request->validate([
             'titel' => 'required|string|max:255',
-            'type' => 'required|string|max:255',
-            'video' => 'nullable|string|url',
-            'video_file' => 'nullable|file|mimes:mp4,mov,avi,wmv',
-            'pdf' => 'nullable|file|mimes:pdf',
-            'task' => 'nullable|file',
-            'exam' => 'nullable|file',
+            'type'  => 'required|in:video,pdf,task,exam',
+
+            'video' => 'nullable|url',
+            'pdf'   => 'nullable|file|mimes:pdf',
+            'task'  => 'nullable|file',
+            'exam'  => 'nullable|file',
         ]);
 
         $session->titel = $request->titel;
         $session->type  = $request->type;
 
-        // Video: URL or Uploaded File
-        if ($request->filled('video')) {
-            $session->video = $request->video;
-        } elseif ($request->hasFile('video_file')) {
-            $session->video = $request->file('video_file')->store('video', 'public');
+        // reset all
+        $session->video = '';
+        $session->pdf   = '';
+        $session->task  = '';
+        $session->exam  = '';
+
+        if ($request->type === 'video') {
+            $session->video = $request->video ?? '';
         }
 
-        // PDF / Task / Exam
-        if ($request->hasFile('pdf'))  $session->pdf  = $request->file('pdf')->store('pdf', 'public');
-        if ($request->hasFile('task')) $session->task = $request->file('task')->store('task', 'public');
-        if ($request->hasFile('exam')) $session->exam = $request->file('exam')->store('exam', 'public');
+        if ($request->type === 'pdf' && $request->hasFile('pdf')) {
+            $session->pdf = $request->file('pdf')->store('pdf', 'public');
+        }
 
+        if ($request->type === 'task' && $request->hasFile('task')) {
+            $session->task = $request->file('task')->store('task', 'public');
+        }
+
+        if ($request->type === 'exam' && $request->hasFile('exam')) {
+            $session->exam = $request->file('exam')->store('exam', 'public');
+        }
+
+        // ⚠️ unlocked field update करत नाही (existing logic सुरक्षित ठेवतो)
         $session->save();
 
-        return redirect()->route('sessions.index', ['section_id' => $section_id])
-            ->with('success', 'Session updated successfully.');
+        return redirect()
+            ->route('sessions.index', ['section_id' => $section_id])
+            ->with('success', 'Session updated successfully!');
     }
 
-    /**
-     * Delete session
-     */
+    // ================= DELETE =================
     public function destroy($id)
     {
-        $session = session::findOrFail($id);
+        $session = Session::findOrFail($id);
         $section_id = $session->section_id;
 
         $session->delete();
 
-        return redirect()->route('sessions.index', ['section_id' => $section_id])
+        return redirect()
+            ->route('sessions.index', ['section_id' => $section_id])
             ->with('success', 'Session deleted successfully!');
     }
 }

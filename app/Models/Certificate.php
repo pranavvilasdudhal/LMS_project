@@ -2,18 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Enrollment extends Model
+class Certificate extends Model
 {
-    protected $primaryKey = 'enrollment_id';
+    protected $table = 'certificates';
+
     protected $fillable = [
         'student_id',
         'course_id',
-        'mrp',
-        'sell_price',
-        'status',
+        'certificate_url'
     ];
 
     public function student()

@@ -1,128 +1,87 @@
 @extends('layout.admin.master')
 
 @section('admincontent')
-<div class="container mt-5" id="react-app">
-    <h1>Sessions List</h1>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h3>Sessions List</h3>
 
-    {{-- Success message --}}
-    @if (session('success'))
+        <a href="{{ route('sessions.create', ['section_id' => $section->section_id]) }}"
+           class="btn btn-primary">
+            <i class="fa fa-plus"></i> Add New Session
+        </a>
+    </div>
+
+    @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>
     @endif
 
-    {{-- Add New Session Button --}}
-    <a href="{{ route('sessions.create', ['section_id' => $section->section_id]) }}"
-       class="btn btn-primary mb-3 float-end">
-       <i class="fa fa-plus"></i>Add New Session
-    </a>
-
     @if ($section->sessions->isEmpty())
-        <p>No sessions found.</p>
+        <div class="alert alert-warning">No sessions found.</div>
     @else
-        <table class="table table-bordered table-responsive">
-            <thead>
+        <table class="table table-bordered table-hover">
+            <thead class="table-dark">
                 <tr>
-                    <th>id</th>
+                    <th>#</th>
                     <th>Title</th>
                     <th>Type</th>
-                    <th>Video</th>
-                    <th>PDF</th>
-                    {{-- <th>Task</th>
-                    <th>Exam</th> --}}
-                    <th>Actions</th>
+                    <th>Content</th>
+                    <th width="160">Action</th>
                 </tr>
             </thead>
             <tbody>
-                @php
-                    $count = 1;
-                @endphp
-                
-                @foreach ($section->sessions as $session)
+                @foreach ($section->sessions as $i => $session)
                     <tr>
-                        <td>{{ $count++ }}</td>
+                        <td>{{ $i + 1 }}</td>
                         <td>{{ $session->titel }}</td>
-                        <td>{{ ucfirst($session->type) }}</td>
+                        <td class="text-capitalize">{{ $session->type }}</td>
 
-                        {{-- Video Column  --}}
+                        {{-- CONTENT --}}
                         <td>
-                            @if ($session->type === 'video' && $session->video)
-                                @php
-                                    $youtube_id = null;
-
-                                    if (str_contains($session->video, 'youtu.be')) {
-                                        //short url
-                                        $parts = explode('/', $session->video);
-                                        $youtube_id = end($parts);
-                                        $youtube_id = explode('?', $youtube_id)[0];
-                                    } elseif (str_contains($session->video, 'youtube.com')) {
-                                        //normal url
-                                        preg_match('/v=([^\&\?\/]+)/', $session->video, $matches);
-                                        $youtube_id = $matches[1] ?? null;
-                                    }
-                                @endphp
-
-                                @if($youtube_id)
-                                    <iframe width="150" height="100"
-                                            src="https://www.youtube.com/embed/{{ $youtube_id }}"
-                                            frameborder="0" allowfullscreen>
-                                    </iframe>
-                                @else
-                                    <span class="text-muted">Invalid YouTube URL</span>
-                                @endif
-
-                            @else
-                                <span class="text-muted">=</span>
-                            @endif
-                            
-                        </td>
-
-                        {{-- PDF Column --}}
-                        <td>
-                            @if($session->pdf)
-                                <a href="{{ asset('storage/' . $session->pdf) }}" target="_blank">
-                                    <i class="fa fa-file-pdf fa-2x text-danger"></i>
+                            @if($session->type === 'video' && $session->video)
+                                <a href="{{ $session->video }}" target="_blank"
+                                   class="btn btn-sm btn-danger">
+                                   ▶ Video
                                 </a>
 
-                            @else
-                                <span class="text-muted">=</span>
-                            @endif
+                            @elseif($session->type === 'pdf' && $session->pdf)
+                                <a href="{{ asset('storage/'.$session->pdf) }}" target="_blank"
+                                   class="btn btn-sm btn-secondary">
+                                   📄 PDF
+                                </a>
 
-                        </td>
-                        {{-- <td>
-                            @if($session->task)
-                                <a href="{{ asset('storage/' . $session->task) }}" target="_blank">
-                                    <i class="fa fa-file-pdf fa-2x text-grren"></i>
+                            @elseif($session->type === 'task' && $session->task)
+                                <a href="{{ asset('storage/'.$session->task) }}" target="_blank"
+                                   class="btn btn-sm btn-info">
+                                   📝 Task
+                                </a>
+
+                            @elseif($session->type === 'exam' && $session->exam)
+                                <a href="{{ asset('storage/'.$session->exam) }}" target="_blank"
+                                   class="btn btn-sm btn-warning">
+                                   🧪 Exam
                                 </a>
                             @else
-                                <span class="text-muted">No Task</span>
+                                <span class="text-muted">No content</span>
                             @endif
                         </td>
-                        <td>
-                            @if($session->exam)
-                                <a href="{{ asset('storage/' . $session->exam) }}" target="_blank">
-                                    <i class="fa fa-list fa-2x text-list"></i>
-                                </a>
-                            @else
-                                <span class="text-muted">No Exam</span>
-                            @endif
-                        </td> --}}
-                       
-                        
-                        
-                        {{-- Actions --}}
+
+                        {{-- ACTION --}}
                         <td>
                             <a href="{{ route('sessions.edit', [$section->section_id, $session->id]) }}"
-                               class="btn btn-info btn-sm"><i class="fa fa-edit"></i>Edit</a>
+                               class="btn btn-sm btn-info">
+                               Edit
+                            </a>
 
-                            <form action="{{ route('sessions.destroy', $session->id) }}" method="POST"
-                                  style="display:inline-block;">
+                            <form action="{{ route('sessions.destroy', $session->id) }}"
+                                  method="POST" class="d-inline">
                                 @csrf
                                 @method('DELETE')
-                                <button class="btn btn-danger btn-sm"
-                                        onclick="return confirm('Are you sure you want to delete this session?')"><i class="fa fa-trash"></i>Delete
+                                <button class="btn btn-sm btn-danger"
+                                    onclick="return confirm('Delete this session?')">
+                                    Delete
                                 </button>
                             </form>
                         </td>
-
                     </tr>
                 @endforeach
             </tbody>

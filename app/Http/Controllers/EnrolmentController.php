@@ -36,9 +36,11 @@ class EnrolmentController extends Controller
             'course_id' => $request->course_id,
             'mrp' => $request->mrp,
             'sell_price' => $request->sell_price,
+            'status' => 'pending', // default
         ]);
 
-        return redirect()->route('enrolments.index')->with('success', 'Enrolment created successfully!');
+        return redirect()->route('enrolments.index')
+            ->with('success', 'Enrolment created successfully!');
     }
 
     public function edit($id)
@@ -49,7 +51,6 @@ class EnrolmentController extends Controller
         return view('Enrolments.edit', compact('enrolment', 'students', 'courses'));
     }
 
-
     public function update(Request $request, $id)
     {
         $request->validate([
@@ -57,17 +58,20 @@ class EnrolmentController extends Controller
             'course_id' => 'required|exists:course,course_id',
             'mrp' => 'required|numeric',
             'sell_price' => 'required|numeric',
+            'status' => 'required|in:pending,processing,purchased'
         ]);
 
         $enrolment = Enrollment::findOrFail($id);
         $enrolment->update($request->all());
 
-        return redirect()->route('enrolments.index')->with('success', 'Enrolment updated successfully!');
+        return redirect()->route('enrolments.index')
+            ->with('success', 'Enrolment updated successfully!');
     }
 
     public function destroy($id)
     {
         Enrollment::destroy($id);
-        return redirect()->route('enrolments.index')->with('success', 'Enrolment deleted successfully!');
+        return redirect()->route('enrolments.index')
+            ->with('success', 'Enrolment deleted successfully!');
     }
 }

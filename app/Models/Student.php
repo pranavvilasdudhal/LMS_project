@@ -13,7 +13,7 @@ class Student extends Model
         'student_name',
         'student_email',
         'student_phone',
-        'student_address',
+        'student_address',  
         'student_password',
     ];
 
@@ -23,4 +23,6 @@ class Student extends Model
     {
         return $this->hasOne(User::class, 'email', 'student_email','user_id');
     }
+    
+    
 }

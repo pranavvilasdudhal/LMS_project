@@ -2,18 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Enrollment extends Model
+class Progress extends Model
 {
-    protected $primaryKey = 'enrollment_id';
+    protected $table = 'progress';
+
     protected $fillable = [
         'student_id',
         'course_id',
-        'mrp',
-        'sell_price',
-        'status',
+        'session_id',
+        'completed'
     ];
 
     public function student()
@@ -24,5 +23,10 @@ class Enrollment extends Model
     public function course()
     {
         return $this->belongsTo(Course::class, 'course_id', 'course_id');
+    }
+
+    public function session()
+    {
+        return $this->belongsTo(Session::class, 'session_id', 'id');
     }
 }

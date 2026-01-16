@@ -11,7 +11,7 @@
                     @if ($pdf->user && $pdf->user->photo)
                         <img src="{{ asset('storage/' . $pdf->user->photo) }}" class="rounded-circle mb-3 img-thumbnail"
                             width="110" height="110">
-                    @else           
+                    @else
                         <img src="{{ asset('default-avatar.png') }}" class="rounded-circle mb-3 img-thumbnail" width="110"
                             height="110">
                     @endif
@@ -45,9 +45,12 @@
                         <li class="nav-item">
                             <span class="nav-link">Orders</span>
                         </li>
-                        <li class="nav-item">
-                            <span class="nav-link">PDFs</span>
-                        </li>
+                        
+                            <a href="{{ asset('storage/' . $pdf->pdf) }}" target="_blank"
+                                class="btn btn-outline-primary btn-sm">
+                                View/PDF
+                            </a>
+                       
                     </ul>
 
                     <!-- COURSE INFO -->

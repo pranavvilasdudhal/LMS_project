@@ -99,7 +99,7 @@ public function getBySection($section_id, $user_id)
             'task' => $s->task,
             'exam' => $s->exam,
 
-   
+    
             'unlocked' => $unlocked,
         ];
     }

@@ -52,21 +52,21 @@ public function approve($id)
 {
     $pdf = UploadedPdf::findOrFail($id);
 
-    // 1️⃣ Approve PDF
+    //  Approve PDF
     $pdf->approved = 1;
     $pdf->save();
 
-    // 2️⃣ Unlock CURRENT session (session table)
+    //  Unlock CURRENT session (session table)
     Session::where('id', $pdf->session_id)
         ->update(['unlocked' => 1]);
 
-    // 3️⃣ Find NEXT session in same section
+    //  Find NEXT session in same section
     $next = Session::where('section_id', $pdf->section_id)
         ->where('id', '>', $pdf->session_id)
         ->orderBy('id', 'asc')
         ->first();
 
-    // 4️⃣ Unlock NEXT session (session table)
+    // 4 Unlock NEXT session (session table)
     if ($next) {
         Session::where('id', $next->id)
             ->update(['unlocked' => 1]);
@@ -77,11 +77,11 @@ public function approve($id)
 
 public function index1(Request $request)
 {
-    // ✅ logged in user (route has auth middleware)
+    //  logged in user (route has auth middleware)
     $userId = Auth::id();
 
-    // 🔢 COUNTS
-    $totalUsers = User::count();   // ✅ TOTAL USERS
+    // COUNTS
+    $totalUsers = User::count();   //  TOTAL USERS
 
     $approvedPdfCount = UploadedPdf::where('user_id', $userId)
         ->where('approved', true)

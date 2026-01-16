@@ -26,7 +26,6 @@ class SessionController extends Controller
     public function store(Request $request, $section_id)
     {
         $request->validate([
-            'section_id' => 'required|exists:section,section_id',
             'titel' => 'required|string|max:255',
             'type'  => 'required|in:video,pdf,task,exam',
 
@@ -36,20 +35,21 @@ class SessionController extends Controller
             'exam'  => 'nullable|file',
         ]);
 
-        // 🔑 त्या section मधील आधी किती sessions आहेत ते मोज
-        $sessionCount = Session::where('section_id', $section_id)->count();
+  
+        $sectionId = $section_id;
+
+ 
+        $isFirstSession = !Session::where('section_id', $sectionId)->exists();
 
         $data = [
-            'section_id' => $section_id,
-            'titel' => $request->titel,
-            'type'  => $request->type,
-            'video' => '',
-            'pdf'   => '',
-            'task'  => '',
-            'exam'  => '',
-
-            // 🔑 FIRST SESSION = unlocked (1), बाकी = 0
-            'unlocked' => $sessionCount === 0 ? 1 : 0,
+            'section_id' => $sectionId,
+            'titel'      => $request->titel,
+            'type'       => $request->type,
+            'video'      => '',
+            'pdf'        => '',
+            'task'       => '',
+            'exam'       => '',
+            'unlocked'   => $isFirstSession ? 1 : 0, // ⭐ MAIN LOGIC
         ];
 
         if ($request->type === 'video') {
@@ -71,9 +71,10 @@ class SessionController extends Controller
         Session::create($data);
 
         return redirect()
-            ->route('sessions.index', ['section_id' => $section_id])
+            ->route('sessions.index', ['section_id' => $sectionId])
             ->with('success', 'Session created successfully!');
     }
+
 
     // ================= EDIT =================
     public function edit($section_id, $id)
@@ -124,7 +125,7 @@ class SessionController extends Controller
             $session->exam = $request->file('exam')->store('exam', 'public');
         }
 
-        // ⚠️ unlocked field update करत नाही (existing logic सुरक्षित ठेवतो)
+     
         $session->save();
 
         return redirect()

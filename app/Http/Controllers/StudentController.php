@@ -176,7 +176,7 @@ class StudentController extends Controller
 
     public function certificatePage()
 {
-    // सर्व certificates + student + course joins
+    //certificates + student + course joins
     $certificates = Certificate::with(['student', 'course'])->get();
 
     return view('students.certificates', compact('certificates'));

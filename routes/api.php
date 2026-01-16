@@ -19,7 +19,7 @@ use App\Http\Controllers\SessionController;
 use App\Http\Controllers\Api\UploadedPdfController;
 
 
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'apiRegister']);
 
 Route::post('/login', [AuthController::class, 'login']);
 

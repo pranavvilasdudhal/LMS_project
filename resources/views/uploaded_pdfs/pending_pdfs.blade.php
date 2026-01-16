@@ -30,9 +30,8 @@
                 <tr>
                     <td>{{ $count++ }}</td>
 
-                    <td>
-                        {{ $pdf->student->name ?? 'User '.$pdf->user_id }}
-                    </td>
+                   <td>{{ auth()->user()->name }}</td>
+
 
                     <td>
                         {{ $pdf->session->titel ?? 'Session '.$pdf->session_id }}

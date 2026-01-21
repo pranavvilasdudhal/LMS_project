@@ -2,13 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Session extends Model
 {
-    use HasFactory;
-
     protected $table = 'session';
 
     protected $fillable = [
@@ -19,7 +16,7 @@ class Session extends Model
         'task',
         'exam',
         'section_id',
-        'unlocked', // THIS WAS MISSING
+        'unlocked',
     ];
 
     public function section()
@@ -27,9 +24,9 @@ class Session extends Model
         return $this->belongsTo(Section::class, 'section_id', 'section_id');
     }
 
-    //  Relation: Session → Progress
+    // ✅ FIX THIS
     public function progress()
     {
-        return $this->hasOne(SessionProgress::class, 'session_id');
+        return $this->hasMany(Progress::class, 'session_id', 'id');
     }
 }

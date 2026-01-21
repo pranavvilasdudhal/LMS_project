@@ -15,6 +15,10 @@ class Progress extends Model
         'completed'
     ];
 
+    protected $casts = [
+        'completed' => 'boolean'
+    ];
+
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id', 'student_id');

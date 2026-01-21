@@ -85,8 +85,28 @@ Route::prefix('admin')->group(function () {
 
 
 Route::get('/getBySection/{section_id}/{user_id}', [ApiSessionController::class, 'getBySection']);
+//progres
+Route::middleware('auth:sanctum')->group(function () {
+
+    Route::get('/student/courses', [ProgressController::class,'getStudentCourses']);
+    Route::post('/student/complete-session', [ProgressController::class,'completeSession']);
+    Route::get('/student/subject-progress/{subject_id}', [ProgressController::class,'getSubjectProgress']);
+
+});
 
 
+
+Route::middleware('auth:sanctum')->group(function () {
+
+    // STUDENT  API---------------------------------------------------------------------
+    Route::get('/student/courses', [ProgressController::class, 'getStudentCourses']);
+    Route::get('/student/subject-progress/{id}', [ProgressController::class, 'getSubjectProgress']);
+    Route::get('/student/session-progress/{id}', [ProgressController::class, 'getSessionProgress']);
+
+    // ADMIN  API-----------------------------------------------------------------------
+    Route::get('/admin/students-progress', [ProgressController::class, 'adminStudentsProgress']);
+    Route::get('/admin/student/{student}/course/{course}', [ProgressController::class, 'adminCourseDetail']);
+});
 
 
 

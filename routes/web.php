@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\AdminPdfController;
+use App\Http\Controllers\Admin\StudentProgressController;
 use App\Http\Controllers\Admin\UploadedPdfAdminController;
+use App\Http\Controllers\Api\ProgressController;
 use App\Http\Controllers\CourseController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
@@ -14,8 +16,9 @@ use App\Http\Controllers\UserController;
 use Illuminate\Contracts\Session\Session;
 use App\Http\Controllers\EnrolmentController;
 use Illuminate\Support\Facades\Auth;
-    Route::get('/dashboard', [AdminPdfController::class, 'index1'])
-        ->name('dashboard');
+
+Route::get('/dashboard', [AdminPdfController::class, 'index1'])
+    ->name('dashboard');
 Route::get('/', function () {
     return view('layouts.app');
 });
@@ -205,10 +208,59 @@ Route::prefix('admin')->group(function () {
 
     Route::post('/approve-pdf/{id}', [AdminPdfController::class, 'approve'])
         ->name('admin.pdf.approve');
-
 });
 
 
 
- 
-   
+/*
+|--------------------------------------------------------------------------
+| ADMIN PROGRESS ROUTES
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware(['auth'])->prefix('admin')->group(function () {
+
+    Route::get(
+        '/student-progress',
+        [ProgressController::class, 'index']
+    )->name('student.progress.index');
+
+    Route::get(
+        '/student-progress/{student_id}',
+        [ProgressController::class, 'show']
+    )->name('student.progress.show');
+
+    Route::get('/certificates', function () {
+        return view('admin.certificates.index');
+    })->name('admin.certificates');
+});
+
+
+// StudentProgressController-------------------------------------------------------------------------------
+
+Route::prefix('admin')->middleware('auth')->group(function () {
+
+    Route::get(
+        '/student-progress',
+        [ProgressController::class, 'index']
+    )->name('student.progress.index');
+
+    Route::get(
+        '/student-progress/{student_id}',
+        [ProgressController::class, 'show']
+    )->name('student.progress.show');
+
+    Route::get('/admin/course-progress/{student_id}/{course_id}',
+    [ProgressController::class, 'courseDetail']
+)->name('student.course.detail');
+
+});
+
+Route::get('/admin/course-progress/{student_id}/{course_id}', function($student_id, $course_id) {
+
+    $student = \App\Models\Student::findOrFail($student_id);
+    $course = \App\Models\Course::with('subject.sections.sessions')->findOrFail($course_id);
+
+    return view('student_progres.course_detail', compact('student','course'));
+
+})->name('admin.course.progress');

@@ -75,6 +75,12 @@
                     <a href="{{ route('certificates.page') }}" class="nav-item nav-link"><i
                             class="fa fa-table me-2"></i>Certificates</a>
 
+                    <a href="{{ route('student.progress.index') }}" class="nav-item nav-link">
+                        <i class="fa fa-table me-2"></i>Progress
+                    </a>
+
+
+
                     {{-- <a href="{{ route("enrolments.index") }}" class="nav-item nav-link">
                             <i class="fa fa-layer-group me-2"></i>enrolment
                         </a>  --}}
@@ -129,7 +135,8 @@
                                 style="width: 40px; height: 40px;" alt="Profile">
                             <span class="d-none d-lg-inline-flex">{{ Auth::user()->name ?? 'User' }}</span>
                         </a>
-                        <div class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0 p-3">
+                        <div
+                            class="dropdown-menu dropdown-menu-end bg-light border-0 rounded-0 rounded-bottom m-0 p-3">
                             <div class="user-box d-flex align-items-center">
                                 <div class="avatar-lg me-3">
                                     <img src="{{ asset('storage/' . Auth::user()->photo) }}"

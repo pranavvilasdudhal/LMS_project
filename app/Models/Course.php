@@ -45,4 +45,8 @@ class Course extends Model
     {
         return $this->hasMany(Progress::class, 'course_id', 'course_id');
     }
+    public function subjects()
+    {
+        return $this->hasMany(Subject::class, 'course_id');
+    }
 }

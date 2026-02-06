@@ -8,15 +8,23 @@ class Progress extends Model
 {
     protected $table = 'progress';
 
-    protected $fillable = [
+     protected $fillable = [
         'student_id',
         'course_id',
         'session_id',
+        'video_completed',
+        'pdf_completed',
+        'task_completed',
+        'exam_completed',
         'completed'
     ];
 
     protected $casts = [
-        'completed' => 'boolean'
+        'video_completed' => 'boolean',
+        'pdf_completed'   => 'boolean',
+        'task_completed'  => 'boolean',
+        'exam_completed'  => 'boolean',
+        'completed'       => 'boolean',
     ];
 
     public function student()

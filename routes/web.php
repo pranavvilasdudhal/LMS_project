@@ -17,14 +17,9 @@ use Illuminate\Contracts\Session\Session;
 use App\Http\Controllers\EnrolmentController;
 use Illuminate\Support\Facades\Auth;
 
-Route::get('/dashboard', [AdminPdfController::class, 'index1'])
-    ->name('dashboard');
-Route::get('/', function () {
-    return view('layouts.app');
-});
-Route::get('/login', function () {
-    return view('auth.login');
-});
+Route::get('/dashboard', [AdminPdfController::class, 'index1'])->name('dashboard');
+Route::get('/', function () {return view('layouts.app');});
+Route::get('/login', function () {return view('auth.login');});
 
 Auth::routes();
 
@@ -206,8 +201,10 @@ Route::prefix('admin')->group(function () {
     Route::get('/pdf-review/{id}', [AdminPdfController::class, 'show'])
         ->name('admin.pdf.review');
 
-    Route::post('/approve-pdf/{id}', [AdminPdfController::class, 'approve'])
-        ->name('admin.pdf.approve');
+    Route::post('/approve-pdf/{id}', [AdminPdfController::class, 'approve'])->name('admin.pdf.approve');
+    Route::post('/pdf/reject/{id}', 
+        [AdminPdfController::class, 'reject']
+    )->name('admin.pdf.reject');
 });
 
 
@@ -218,40 +215,25 @@ Route::prefix('admin')->group(function () {
 |--------------------------------------------------------------------------
 */
 
-Route::middleware(['auth'])->prefix('admin')->group(function () {
+// Route::middleware(['auth'])->prefix('admin')->group(function () {
 
-    Route::get(
-        '/student-progress',
-        [ProgressController::class, 'index']
-    )->name('student.progress.index');
+//     Route::get('/student-progress',[ProgressController::class, 'index'])->name('student.progress.index');
 
-    Route::get(
-        '/student-progress/{student_id}',
-        [ProgressController::class, 'show']
-    )->name('student.progress.show');
+//     Route::get('/student-progress/{student_id}',[ProgressController::class, 'show'])->name('student.progress.show');
 
-    Route::get('/certificates', function () {
-        return view('admin.certificates.index');
-    })->name('admin.certificates');
-});
+//     Route::get('/certificates', function () {return view('admin.certificates.index');})->name('admin.certificates');
+// });
 
 
 // StudentProgressController-------------------------------------------------------------------------------
 
 Route::prefix('admin')->middleware('auth')->group(function () {
 
-    Route::get(
-        '/student-progress',
-        [ProgressController::class, 'index']
-    )->name('student.progress.index');
+    Route::get('/student-progress',[ProgressController::class, 'index'])->name('student.progress.index');
 
-    Route::get(
-        '/student-progress/{student_id}',
-        [ProgressController::class, 'show']
-    )->name('student.progress.show');
+    Route::get('/student-progress/{student_id}',[ProgressController::class, 'show'])->name('student.progress.show');
 
-    Route::get('/admin/course-progress/{student_id}/{course_id}',
-    [ProgressController::class, 'courseDetail']
+    Route::get('/admin/course-progress/{student_id}/{course_id}',[ProgressController::class, 'courseDetail']
 )->name('student.course.detail');
 
 });

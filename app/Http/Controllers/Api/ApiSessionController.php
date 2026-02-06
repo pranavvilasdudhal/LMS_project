@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Session;
 use App\Models\Section;
 use App\Models\SessionProgress;
+use App\Models\UploadedPdf;
 use Illuminate\Http\Request;
 
 
@@ -74,21 +75,19 @@ public function getBySection($section_id, $user_id)
 
     foreach ($sessions as $index => $s) {
 
-        // 🔑 RULE: THIS SECTION FIRST SESSION ALWAYS UNLOCK
+        // 🔑 First session always unlocked
         if ($index === 0) {
-
-           
             $unlocked = true;
-
-          
-            Session::where('id', $s->id)->update([
-                'unlocked' => 1
-            ]);
-
+            Session::where('id', $s->id)->update(['unlocked' => 1]);
         } else {
-
             $unlocked = ($s->unlocked == 1);
         }
+
+        // 🔍 Fetch uploaded PDF status for THIS user + session
+        $uploadedPdf = UploadedPdf::where('session_id', $s->id)
+            ->where('user_id', $user_id)
+            ->latest()
+            ->first();
 
         $final[] = [
             'id' => $s->id,
@@ -98,9 +97,12 @@ public function getBySection($section_id, $user_id)
             'pdf' => $s->pdf,
             'task' => $s->task,
             'exam' => $s->exam,
-
-    
             'unlocked' => $unlocked,
+
+            // 🔥 PDF STATUS FIELDS (IMPORTANT)
+            'approved' => $uploadedPdf?->approved ?? 0,
+            'rejected' => $uploadedPdf?->rejected ?? 0,
+            'reject_reason' => $uploadedPdf?->reject_reason,
         ];
     }
 

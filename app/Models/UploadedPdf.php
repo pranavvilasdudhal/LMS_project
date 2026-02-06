@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Student;
 use App\Models\User;
-
+use App\Models\Course;
+use App\Models\Subject;
+use App\Models\Section;
+use App\Models\Session;
 
 class UploadedPdf extends Model
 {
@@ -22,32 +24,35 @@ class UploadedPdf extends Model
         'session_id',
         'pdf',
         'approved',
+        'rejected',
+        'reject_reason',
+        'pdf_lock',
     ];
 
-    // UploadedPdf.php
+    // 🔗 Relationships
 
-  public function user()
+    public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class);
     }
-    
+
     public function course()
     {
-        return $this->belongsTo(Course::class, 'course_id');
+        return $this->belongsTo(Course::class, 'course_id', 'course_id');
     }
 
     public function subject()
     {
-        return $this->belongsTo(Subject::class, 'subject_id');
+        return $this->belongsTo(Subject::class, 'subject_id', 'subject_id');
     }
 
     public function section()
     {
-        return $this->belongsTo(Section::class, 'section_id');
+        return $this->belongsTo(Section::class, 'section_id', 'section_id');
     }
 
     public function session()
     {
-        return $this->belongsTo(Session::class, 'session_id');
+        return $this->belongsTo(Session::class, 'session_id', 'id');
     }
 }

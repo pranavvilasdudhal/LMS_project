@@ -10,12 +10,14 @@ use App\Models\Session;
 use App\Models\Section;
 use App\Models\Subject;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\Session as CourseSession;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Progress;
 use App\Models\SessionProgress;
-use Symfony\Component\HttpFoundation\Request;
+use App\Models\Student;
+use Illuminate\Http\Request;
+
 
 class AdminPdfController extends Controller
 {
@@ -46,73 +48,122 @@ class AdminPdfController extends Controller
     }
 
 
-
-
-
     // public function approve($id)
     // {
     //     $pdf = UploadedPdf::findOrFail($id);
-
-    //     //  Approve PDF
     //     $pdf->approved = 1;
     //     $pdf->save();
 
-    //     //  Unlock CURRENT session (session table)
-    //     Session::where('id', $pdf->session_id)
-    //         ->update(['unlocked' => 1]);
+    //     Session::where('id', $pdf->session_id)->update(['unlocked' => 1]);
 
-    //     //  Find NEXT session in same section
-    //     $next = Session::where('section_id', $pdf->section_id)
-    //         ->where('id', '>', $pdf->session_id)
-    //         ->orderBy('id', 'asc')
-    //         ->first();
+    //     $next = Session::where('section_id', $pdf->section_id)->where('id', '>', $pdf->session_id)->orderBy('id', 'asc')->first();
 
-    //     // 4 Unlock NEXT session (session table)
+
     //     if ($next) {
-    //         Session::where('id', $next->id)
-    //             ->update(['unlocked' => 1]);
+    //         Session::where('id', $next->id)->update(['unlocked' => 1]);
     //     }
 
     //     return back()->with('success', 'PDF approved & session unlocked');
     // }
 
+    // 22222222222222222222222222222222222222222222
 
     public function approve($id)
-{
-    $pdf = UploadedPdf::findOrFail($id);
+    {
+        $pdf = UploadedPdf::findOrFail($id);
+        $pdf->approved = 1;
+        $pdf->save();
 
-    // 1️⃣ Approve PDF
-    $pdf->approved = 1;
-    $pdf->save();
+        // ✅ ADD THIS
+        $student = Student::first(); // temp
+        Progress::updateOrCreate(
+            [
+                'student_id' => $student->student_id,
+                'session_id' => $pdf->session_id,
+                'course_id'  => $pdf->course_id ?? 1,
+            ],
+            [
+                'pdf_completed' => 1
+            ]
+        );
 
-    // 2️⃣ Update progress (12.5% unlock)
-    Progress::updateOrCreate(
-        [
-            'student_id' => $pdf->student_id,
-            'session_id' => $pdf->session_id,
-        ],
-        [
-            'pdf_completed' => 1
-        ]
-    );
+        Session::where('id', $pdf->session_id)->update(['unlocked' => 1]);
 
-    // 3️⃣ Unlock current session
-    Session::where('id', $pdf->session_id)
-        ->update(['unlocked' => 1]);
+        $next = Session::where('section_id', $pdf->section_id)
+            ->where('id', '>', $pdf->session_id)
+            ->orderBy('id', 'asc')
+            ->first();
 
-    // 4️⃣ Unlock next session
-    $next = Session::where('section_id', $pdf->section_id)
-        ->where('id', '>', $pdf->session_id)
-        ->orderBy('id')
-        ->first();
+        if ($next) {
+            Session::where('id', $next->id)->update(['unlocked' => 1]);
+        }
 
-    if ($next) {
-        $next->update(['unlocked' => 1]);
+        return back()->with('success', 'PDF approved & progress updated');
     }
 
-    return back()->with('success', 'PDF approved & progress updated');
-}
+    // 22222222222222222222222222222222222222222222 
 
+
+
+//     public function approveApi($id)
+// {
+//     $pdf = UploadedPdf::find($id);
+
+//     if (!$pdf) {
+//         return response()->json([
+//             'status' => false,
+//             'message' => 'PDF not found'
+//         ], 404);
+//     }
+
+//     $pdf->approved = 1;
+//     $pdf->save();
+
+//     $student = Student::first(); // TEMP
+
+//     Progress::updateOrCreate(
+//         [
+//             'student_id' => $student->student_id,
+//             'session_id' => $pdf->session_id,
+//             'course_id'  => $pdf->course_id ?? 1,
+//         ],
+//         [
+//             'pdf_completed' => 1
+//         ]
+//     );
+
+//     Session::where('id', $pdf->session_id)->update(['unlocked' => 1]);
+
+//     $next = Session::where('section_id', $pdf->section_id)
+//         ->where('id', '>', $pdf->session_id)
+//         ->orderBy('id')
+//         ->first();
+
+//     if ($next) {
+//         Session::where('id', $next->id)->update(['unlocked' => 1]);
+//     }
+
+//     return response()->json([
+//         'status' => true,
+//         'message' => 'PDF approved & session unlocked'
+//     ]);
+// }
+
+public function reject(Request $request, $id)
+{
+    $request->validate([    
+        'reject_reason' => 'required|string|min:5',
+    ]);
+
+    $pdf = UploadedPdf::findOrFail($id);
+
+    $pdf->approved = 0;
+    $pdf->rejected = 1;
+    $pdf->reject_reason = $request->reject_reason;
+    $pdf->save();
+
+    return back()->with('success', 'PDF rejected successfully');
+}
 
 
 

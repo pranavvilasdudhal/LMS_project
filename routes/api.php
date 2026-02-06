@@ -86,27 +86,45 @@ Route::prefix('admin')->group(function () {
 
 Route::get('/getBySection/{section_id}/{user_id}', [ApiSessionController::class, 'getBySection']);
 //progres
+
+
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('/student/courses', [ProgressController::class,'getStudentCourses']);
     Route::post('/student/complete-session', [ProgressController::class,'completeSession']);
-    Route::get('/student/subject-progress/{subject_id}', [ProgressController::class,'getSubjectProgress']);
 
 });
 
+/*
+|--------------------------------------------------------------------------
+| STUDENT APIs
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/student/courses', [ProgressController::class, 'getStudentCourses']);
+
+Route::get('/student/subject-progress/{subject_id}', [ProgressController::class,'getSubjectProgress']);
+
+Route::get('/student/session-progress/{session_id}', [ProgressController::class, 'sessionProgressApi']);
+
+Route::post('/student/session/video-complete', [ProgressController::class, 'videoComplete']);
+
+Route::post('/student/session/pdf-uploaded', [ProgressController::class, 'pdfUploaded']);
+
+/*
+|--------------------------------------------------------------------------
+| ADMIN APIs
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/admin/students-progress', [ProgressController::class, 'adminStudentsProgress']);
+
+Route::get('/admin/student/{student_id}/course/{course_id}',[ProgressController::class, 'adminCourseDetail']);
+
+// Route::post('/admin/pdf/approve/{id}', [AdminPdfController::class, 'approve']);
 
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::post('/admin/pdf/approve/{id}', [AdminPdfController::class, 'approveApi']);
 
-    // STUDENT  API---------------------------------------------------------------------
-    Route::get('/student/courses', [ProgressController::class, 'getStudentCourses']);
-    Route::get('/student/subject-progress/{id}', [ProgressController::class, 'getSubjectProgress']);
-    Route::get('/student/session-progress/{id}', [ProgressController::class, 'getSessionProgress']);
-
-    // ADMIN  API-----------------------------------------------------------------------
-    Route::get('/admin/students-progress', [ProgressController::class, 'adminStudentsProgress']);
-    Route::get('/admin/student/{student}/course/{course}', [ProgressController::class, 'adminCourseDetail']);
-});
 
 
 
